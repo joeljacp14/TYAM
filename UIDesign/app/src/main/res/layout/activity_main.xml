@@ -19,40 +19,46 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
+        android:layout_marginStart="15dp"
+        android:layout_marginEnd="15dp"
         android:layout_marginTop="20dp">
 
         <TextView
             android:id="@+id/textView1"
-            android:layout_width="80dp"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="15dp"
+            android:layout_weight="1"
             android:text="Nombre:" />
 
         <EditText
             android:id="@+id/etName"
-            android:layout_width="290dp"
+            android:layout_width="0dp"
             android:layout_height="48dp"
+            android:layout_weight="3"
             android:hint="nombre"/>
 
-        </LinearLayout>
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
+        android:layout_marginStart="15dp"
+        android:layout_marginEnd="15dp"
         android:layout_marginTop="7dp">
 
         <TextView
             android:id="@+id/textView2"
-            android:layout_width="80dp"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="15dp"
+            android:layout_weight="1"
             android:text="Apellido:" />
 
         <EditText
             android:id="@+id/etLastN"
-            android:layout_width="290dp"
+            android:layout_width="0dp"
             android:layout_height="48dp"
+            android:layout_weight="3"
             android:hint="apellido"/>
     </LinearLayout>
 
@@ -60,19 +66,22 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginTop="7dp">
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="7dp"
+        android:layout_marginEnd="15dp">
 
         <TextView
             android:id="@+id/textView3"
-            android:layout_width="80dp"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="15dp"
+            android:layout_weight="1"
             android:text="Edad:" />
 
         <EditText
             android:id="@+id/etAge"
-            android:layout_width="290dp"
+            android:layout_width="0dp"
             android:layout_height="48dp"
+            android:layout_weight="3"
             android:hint="edad"/>
     </LinearLayout>
 
@@ -80,20 +89,23 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
+        android:layout_marginStart="15dp"
+        android:layout_marginEnd="15dp"
         android:layout_marginTop="7dp">
 
         <TextView
             android:id="@+id/textView4"
-            android:layout_width="80dp"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="15dp"
+            android:layout_weight="1"
             android:text="Direccion:" />
 
         <EditText
             android:id="@+id/etAdress"
-            android:layout_width="290dp"
+            android:layout_width="0dp"
             android:layout_height="48dp"
+            android:layout_weight="3"
             android:hint="direccion"/>
     </LinearLayout>
-
+    
 </LinearLayout>
