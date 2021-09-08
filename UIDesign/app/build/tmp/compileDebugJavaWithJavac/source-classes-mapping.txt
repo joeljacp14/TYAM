@@ -1,0 +1,4 @@
+mx/uv/uidesign/BuildConfig.java
+ mx.uv.uidesign.BuildConfig
+mx/uv/uidesign/MainActivity.java
+ mx.uv.uidesign.MainActivity

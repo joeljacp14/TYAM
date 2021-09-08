@@ -29,6 +29,7 @@
             android:text="Nombre:" />
 
         <EditText
+            android:id="@+id/etName"
             android:layout_width="290dp"
             android:layout_height="48dp"
             android:hint="nombre"/>
@@ -49,6 +50,7 @@
             android:text="Apellido:" />
 
         <EditText
+            android:id="@+id/etLastN"
             android:layout_width="290dp"
             android:layout_height="48dp"
             android:hint="apellido"/>
@@ -68,6 +70,7 @@
             android:text="Edad:" />
 
         <EditText
+            android:id="@+id/etAge"
             android:layout_width="290dp"
             android:layout_height="48dp"
             android:hint="edad"/>
@@ -87,6 +90,7 @@
             android:text="Direccion:" />
 
         <EditText
+            android:id="@+id/etAdress"
             android:layout_width="290dp"
             android:layout_height="48dp"
             android:hint="direccion"/>
