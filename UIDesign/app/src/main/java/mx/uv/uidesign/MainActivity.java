@@ -15,4 +15,8 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView (R.layout.activity_main);
     }
+
+    //Esto es un commit, Joel
+    //Basicamente hacer cambios y que se guarde en el historial de versiones/cambios
+    //No se si te quede claro ahora
 }
