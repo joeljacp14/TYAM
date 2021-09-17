@@ -2,7 +2,6 @@ package com.jpdevelopers.myfirstapp;
 
 import android.app.Activity;
 import android.Manifest;
-import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -12,18 +11,19 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.io.ByteArrayOutputStream;
-import java.security.Permission;
-import java.security.Permissions;
 
 public class MainActivity extends Activity {
     //System.out.print("Mi primera app de android\n");
@@ -34,6 +34,7 @@ public class MainActivity extends Activity {
     public static final String PICTURE = "picture";
     public static final String TAG = "MyFirstApp";
     public static final int REQUEST_CODE_CALL_PHONE = 1001;
+    public static final int REQUEST_CODE_CAMERA = 1002;
 
     EditText edtName, edtLastname, edtAge, edtAddress;
     TextView concatenado;
@@ -81,6 +82,19 @@ public class MainActivity extends Activity {
             doPhoneCall ();
         });
 
+        //tomar una imagen instantanea
+        ImageButton btnCaptura = findViewById(R.id.btnCaptura);
+        btnCaptura.setOnClickListener(view -> {
+            int permision = checkSelfPermission(Manifest.permission.CAMERA);
+            if (permision != PackageManager.PERMISSION_GRANTED){
+                requestPermissions(new  String[] { Manifest.permission.CAMERA},
+                        REQUEST_CODE_CAMERA);
+                return;
+            }
+
+            takePicture();
+        });
+
         Log.i (TAG, "OnCreate");
     }
 
@@ -92,6 +106,14 @@ public class MainActivity extends Activity {
         intent.setData (uri);
 
         startActivity (intent);
+    }
+
+    private void takePicture(){
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            startActivityForResult(intent, REQUEST_CODE_CAMERA);
+        }
     }
 
     @Override
@@ -194,6 +216,26 @@ public class MainActivity extends Activity {
             }
         }
 
+        //valida el permiso de la camara
+        if (grantResults.length > 0 && requestCode == REQUEST_CODE_CAMERA){
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                takePicture();
+            }else {
+                Toast.makeText(this, "Neni, necesitas habilitar el permiso de camara para utilizar esta funcion ;)", Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_CODE_CAMERA && resultCode == RESULT_OK){
+            Bundle extras = data.getExtras();
+            Bitmap imgBitmap = (Bitmap) extras.get("data");
+            picture.setImageBitmap(imgBitmap);
+        }
+
+        Log.i(TAG, "OnActivityResult");
     }
 
     @Override
