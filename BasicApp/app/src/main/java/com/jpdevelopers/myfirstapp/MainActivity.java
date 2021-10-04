@@ -213,6 +213,8 @@ public class MainActivity extends Activity {
         if (grantResults.length > 0 && requestCode == REQUEST_CODE_CALL_PHONE) {
             if (grantResults [0] == PackageManager.PERMISSION_GRANTED) {
                 doPhoneCall ();
+            }else {
+                Toast.makeText(this, "Neni, necesitas habilitar el permiso de llamadas para utilizar esta funcion ;)", Toast.LENGTH_LONG).show();
             }
         }
 

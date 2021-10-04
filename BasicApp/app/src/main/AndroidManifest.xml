@@ -14,14 +14,14 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MyFirstApp">
 
-        <activity android:name="com.jpdevelopers.mx.uv.mybassicapp.MainActivity" android:screenOrientation="sensor">
+        <activity android:name="com.jpdevelopers.myfirstapp.MainActivity" android:screenOrientation="fullUser">
             <intent-filter>
                 <category android:name="android.intent.category.LAUNCHER" />
                 <action android:name="android.intent.action.MAIN" />
             </intent-filter>
         </activity>
 
-        <activity android:name="com.jpdevelopers.mx.uv.mybassicapp.SecondActivity" />
+        <activity android:name="com.jpdevelopers.myfirstapp.SecondActivity" />
 
     </application>
 
