@@ -17,6 +17,7 @@
         android:layout_height="100dp"
         android:layout_gravity="center_horizontal"
         android:src="@android:drawable/ic_menu_camera"
+        android:contentDescription="Take picture"
         tools:src="@android:drawable/ic_menu_camera" />
 
     <ImageView

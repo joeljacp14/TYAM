@@ -75,13 +75,15 @@ public class PictureActivity extends Activity /*implements ExifInterface*/ {
                                     Manifest.permission.ACCESS_COARSE_LOCATION,
                                     Manifest.permission.WRITE_EXTERNAL_STORAGE,
                                     Manifest.permission.CAMERA},
-                            REQUEST_CODE_TAKE_PICTURE);
-                }else {
+                            REQUEST_CODE_TAKE_PICTURE );
+                } else {
                     requestPermissions(
-                            new String[] {Manifest.permission.ACCESS_FINE_LOCATION,
+                            new String[] {
+                                    Manifest.permission.ACCESS_FINE_LOCATION,
                                     Manifest.permission.ACCESS_COARSE_LOCATION,
-                                    Manifest.permission.CAMERA},
-                            REQUEST_CODE_TAKE_PICTURE);
+                                    Manifest.permission.CAMERA
+                            },
+                            REQUEST_CODE_TAKE_PICTURE );
                 }
                 return;
             }
