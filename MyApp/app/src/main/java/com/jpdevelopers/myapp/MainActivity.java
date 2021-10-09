@@ -59,6 +59,14 @@ public class MainActivity extends Activity {
         picture.setImageResource (R.mipmap.ic_launcher_round);
         concatenado = findViewById(R.id.vievConcatenado);
 
+        //permiso para usar la camara
+        int permision_camera = checkSelfPermission(Manifest.permission.CAMERA);
+        if (permision_camera != PackageManager.PERMISSION_GRANTED){
+            requestPermissions(new  String[] { Manifest.permission.CAMERA},
+                    REQUEST_CODE_CAMERA);
+            return;
+        }
+
         //permiso para la carga de imagenes
         int image_permision = getBaseContext().checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE);
         if (image_permision != PackageManager.PERMISSION_GRANTED){
@@ -108,12 +116,6 @@ public class MainActivity extends Activity {
         //tomar una imagen instantanea
         ImageButton btnCaptura = findViewById(R.id.btnCaptura);
         btnCaptura.setOnClickListener(view -> {
-            int permision = checkSelfPermission(Manifest.permission.CAMERA);
-            if (permision != PackageManager.PERMISSION_GRANTED){
-                requestPermissions(new  String[] { Manifest.permission.CAMERA},
-                        REQUEST_CODE_CAMERA);
-                return;
-            }
 
             takeShot();
         });
@@ -247,10 +249,10 @@ public class MainActivity extends Activity {
 
         //valida el permiso de la camara
         if (grantResults.length > 0 && requestCode == REQUEST_CODE_CAMERA){
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED){
-                takeShot();
-            }else {
-                Toast.makeText(this, "Neni, necesitas habilitar el permiso de camara para utilizar esta funcion ;)", Toast.LENGTH_LONG).show();
+            if (grantResults[0] == PackageManager.PERMISSION_DENIED){
+                //takeShot();
+            //}else {
+                Toast.makeText(this, "Neni, necesitas habilitar el permiso de camara para aprovechar al maximo las funciones de esta app ;)", Toast.LENGTH_LONG).show();
             }
         }
 
