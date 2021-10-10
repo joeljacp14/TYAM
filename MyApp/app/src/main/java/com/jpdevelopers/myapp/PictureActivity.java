@@ -33,6 +33,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -118,39 +119,39 @@ public class PictureActivity extends Activity /*implements ExifInterface*/ {
         OutputStream fos = null;
         File imagen = null;
         String nombre;
+        ContentResolver resolver = getContentResolver();
+        ContentValues values = new ContentValues();
+
+        nombre = "IMG_"+System.currentTimeMillis()+".jpg";
+        values.put(MediaStore.Images.Media.DISPLAY_NAME, nombre);
+        values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
+        values.put(MediaStore.Images.Media.LATITUDE, latitude);
+        values.put(MediaStore.Images.Media.LONGITUDE, longitude);
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q){
-            ContentResolver resolver = getContentResolver();
-            ContentValues values = new ContentValues();
-
-            nombre = "IMG_"+System.currentTimeMillis();
-            values.put(MediaStore.Images.Media.DISPLAY_NAME, nombre);
-            values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
             values.put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/MyApp");
-            values.put(MediaStore.Images.Media.LATITUDE, latitude);
-            values.put(MediaStore.Images.Media.LONGITUDE, longitude);
-            values.put(MediaStore.Images.Media.IS_PENDING, 1);
-
-            Uri collection = MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY);
-            Uri fotoUri = resolver.insert(collection, values);
-
-            try {
-                fos = resolver.openOutputStream(fotoUri);
-            }catch (FileNotFoundException e){
-                e.printStackTrace();
-            }
-
-            values.clear();
-            values.put(MediaStore.Images.Media.IS_PENDING, 0);
-            resolver.update(fotoUri, values, null, null);
+            values.put(MediaStore.Images.Media.IS_PENDING, true);
         }else {
             imagePath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).toString();
-            nombre = "IMG_"+System.currentTimeMillis()+".jpg";
-            imagen = new File(imagePath, nombre);
+            String fullPath = String.format("%s/%s", imagePath, nombre);
+            values.put(MediaStore.Images.ImageColumns.DATA, fullPath);
+
+            /*imagen = new File(imagePath, nombre);
             try {
                 fos = new FileOutputStream(imagen);
             }catch (FileNotFoundException e){
                 e.printStackTrace();
-            }
+            }*/
+
+        }
+
+        Uri collection = MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY);
+        Uri fotoUri = resolver.insert(collection, values);
+
+        try {
+            fos = resolver.openOutputStream(fotoUri);
+        }catch (FileNotFoundException e){
+            e.printStackTrace();
         }
 
         try {
@@ -170,6 +171,12 @@ public class PictureActivity extends Activity /*implements ExifInterface*/ {
             }catch (IOException e){
                 e.printStackTrace();
             }
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q){
+            values.clear();
+            values.put(MediaStore.Images.Media.IS_PENDING, false);
+            resolver.update(fotoUri, values, null, null);
         }
 
         if (imagen != null)//API < 29
