@@ -2,8 +2,10 @@ package com.jpdevelopers.myapp;
 
 import android.app.Activity;
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -78,10 +80,7 @@ public class MainActivity extends Activity {
             );
             return;
         }else {
-            recyclerView = findViewById(R.id.the_grid);
-            int numOfColumns = 3;
-            recyclerView.setLayoutManager(new GridLayoutManager(this, numOfColumns));
-            //loadImages();
+            visualizaImagenes();
         }
 
         // navigating to second activity using explicit intents
@@ -127,21 +126,33 @@ public class MainActivity extends Activity {
 
     }
 
-    /*
-    void loadImages(){
-        String[] grid = {MediaStore.Images.Media.DISPLAY_NAME};
-        String order = MediaStore.Images.Media.DEFAULT_SORT_ORDER;
-    }*/
+    private void visualizaImagenes() {
+        recyclerView = findViewById(R.id.the_grid);
+        int numOfColumns = 3;
+        recyclerView.setLayoutManager(new GridLayoutManager(this, numOfColumns));
+        ArrayList<ImageView> gallery;
+        gallery = loadImages();
+        recyclerView.setAdapter(new ImageAdapter(this, gallery));
+    }
 
     ArrayList<ImageView> loadImages(){
-        String[] grid = {MediaStore.Images.Media.RELATIVE_PATH};
+        String[] grid = {MediaStore.Images.Media.DISPLAY_NAME};
         String order = MediaStore.Images.Media.DEFAULT_SORT_ORDER;
+        String selection = MediaStore.Images.Media.DISPLAY_NAME+" LIKE ?";
+        String[] selectArgs = {"IMG_%"};
+
+        Cursor cursor = getBaseContext().getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, grid, selection, selectArgs, order);
+        if (cursor == null)
+            return null;
+
         ArrayList<ImageView> output = new ArrayList<>();
         for(String uri: grid){
             ImageView tmp = new ImageView(this);
             tmp.setImageURI(Uri.parse(uri));
             output.add(tmp);
         }
+
+        cursor.close();
 
         return output;
     }
@@ -278,7 +289,7 @@ public class MainActivity extends Activity {
         //valida el permiso de lectura de tarjeta SD
         if (grantResults.length > 0 && requestCode == REQUEST_CODE_READ_EXTERNAL_STORAGE){
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED){
-                loadImages();
+                visualizaImagenes();
             }else {
                 Toast.makeText(this, "Las fotos del dispositivo no se cargaran hasta que aceptes el permio cariño", Toast.LENGTH_LONG).show();
             }
@@ -307,8 +318,6 @@ public class MainActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        ArrayList<ImageView> gallery;
-        recyclerView.setAdapter(new ImageAdapter(this, loadImages()));
         Log.i (TAG, "OnResume");
     }
 
