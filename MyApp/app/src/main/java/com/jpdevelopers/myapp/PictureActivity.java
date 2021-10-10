@@ -39,7 +39,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-public class PictureActivity extends Activity /*implements ExifInterface*/ {
+public class PictureActivity extends Activity {
     public static final String TAG = "PicAct";
     public static final int REQUEST_CODE_TAKE_PICTURE = 1004;//se usa para permisos de escritura externa y gps
     String imagePath;
