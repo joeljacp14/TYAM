@@ -28,6 +28,7 @@
             android:layout_gravity="center_vertical"
             android:layout_weight="1"
             android:src="@android:drawable/ic_menu_camera"
+            android:contentDescription="image_capture"
             tools:src="@android:drawable/ic_menu_camera" />
 
     </LinearLayout>
@@ -147,10 +148,17 @@
 
 
     <TextView
-        android:id="@+id/vievConcatenado"
+        android:id="@+id/viewConcatenado"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="IMAGENES EN EL DISPOSITIVO"
         android:layout_marginTop="20dp"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/the_grid"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    
 
 </LinearLayout>

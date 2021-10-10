@@ -22,11 +22,13 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.jpdevelopers.myapp.R;
 
 import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
 
 public class MainActivity extends Activity {
     public static final String NAME = "name";
@@ -57,7 +59,7 @@ public class MainActivity extends Activity {
         edtAddress = findViewById (R.id.edtAddress);
         picture = findViewById (R.id.picture);
         picture.setImageResource (R.mipmap.ic_launcher_round);
-        concatenado = findViewById(R.id.vievConcatenado);
+        concatenado = findViewById(R.id.viewConcatenado);
 
         //permiso para usar la camara
         int permision_camera = checkSelfPermission(Manifest.permission.CAMERA);
@@ -76,7 +78,10 @@ public class MainActivity extends Activity {
             );
             return;
         }else {
-            loadImages();
+            recyclerView = findViewById(R.id.the_grid);
+            int numOfColumns = 3;
+            recyclerView.setLayoutManager(new GridLayoutManager(this, numOfColumns));
+            //loadImages();
         }
 
         // navigating to second activity using explicit intents
@@ -122,9 +127,23 @@ public class MainActivity extends Activity {
 
     }
 
+    /*
     void loadImages(){
         String[] grid = {MediaStore.Images.Media.DISPLAY_NAME};
         String order = MediaStore.Images.Media.DEFAULT_SORT_ORDER;
+    }*/
+
+    ArrayList<ImageView> loadImages(){
+        String[] grid = {MediaStore.Images.Media.RELATIVE_PATH};
+        String order = MediaStore.Images.Media.DEFAULT_SORT_ORDER;
+        ArrayList<ImageView> output = new ArrayList<>();
+        for(String uri: grid){
+            ImageView tmp = new ImageView(this);
+            tmp.setImageURI(Uri.parse(uri));
+            output.add(tmp);
+        }
+
+        return output;
     }
 
     private void doPhoneCall () {
@@ -288,6 +307,8 @@ public class MainActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
+        ArrayList<ImageView> gallery;
+        recyclerView.setAdapter(new ImageAdapter(this, loadImages()));
         Log.i (TAG, "OnResume");
     }
 
