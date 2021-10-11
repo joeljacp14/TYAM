@@ -2,7 +2,6 @@ package com.jpdevelopers.myapp;
 
 import android.app.Activity;
 import android.Manifest;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -27,8 +26,6 @@ import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.jpdevelopers.myapp.R;
-
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 
@@ -42,6 +39,7 @@ public class MainActivity extends Activity {
     public static final int REQUEST_CODE_CALL_PHONE = 1001;
     public static final int REQUEST_CODE_CAMERA = 1002;
     public static final int REQUEST_CODE_READ_EXTERNAL_STORAGE = 1003;
+    public static final int REQUEST_CODE_CAMERA_AND_EXTERNAL = 1006;
 
     EditText edtName, edtLastname, edtAge, edtAddress;
     TextView concatenado;
@@ -62,26 +60,6 @@ public class MainActivity extends Activity {
         picture = findViewById (R.id.picture);
         picture.setImageResource (R.mipmap.ic_launcher_round);
         concatenado = findViewById(R.id.viewConcatenado);
-
-        //permiso para usar la camara
-        int permision_camera = checkSelfPermission(Manifest.permission.CAMERA);
-        if (permision_camera != PackageManager.PERMISSION_GRANTED){
-            requestPermissions(new  String[] { Manifest.permission.CAMERA},
-                    REQUEST_CODE_CAMERA);
-            return;
-        }
-
-        //permiso para la carga de imagenes
-        int image_permision = getBaseContext().checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE);
-        if (image_permision != PackageManager.PERMISSION_GRANTED){
-            requestPermissions(
-                    new String[] {Manifest.permission.READ_EXTERNAL_STORAGE},
-                    REQUEST_CODE_READ_EXTERNAL_STORAGE
-            );
-            return;
-        }else {
-            visualizaImagenes();
-        }
 
         // navigating to second activity using explicit intents
         Button btnInformation = findViewById (R.id.btnInformation);
@@ -123,6 +101,19 @@ public class MainActivity extends Activity {
 
             takeShot();
         });
+
+        //permiso para usar la camara y lectura externa para cargar las imagenes
+        int permision_camera = checkSelfPermission(Manifest.permission.CAMERA);
+        int image_permision = getBaseContext().checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE);
+        if (permision_camera != PackageManager.PERMISSION_GRANTED && image_permision != PackageManager.PERMISSION_GRANTED){
+            requestPermissions(new  String[] {
+                    Manifest.permission.CAMERA,
+                    Manifest.permission.READ_EXTERNAL_STORAGE},
+                    REQUEST_CODE_CAMERA_AND_EXTERNAL);
+            return;
+        }else {
+            visualizaImagenes();
+        }
 
     }
 
@@ -286,8 +277,8 @@ public class MainActivity extends Activity {
             }
         }
 
-        //valida el permiso de lectura de tarjeta SD
-        if (grantResults.length > 0 && requestCode == REQUEST_CODE_READ_EXTERNAL_STORAGE){
+        //valida el permiso de lectura de tarjeta SD junto con el de camara
+        if (grantResults.length > 0 && requestCode == REQUEST_CODE_CAMERA_AND_EXTERNAL){
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED){
                 visualizaImagenes();
             }else {

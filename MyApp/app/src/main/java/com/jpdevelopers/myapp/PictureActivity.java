@@ -33,6 +33,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -43,7 +44,10 @@ public class PictureActivity extends Activity {
     public static final String TAG = "PicAct";
     public static final int REQUEST_CODE_TAKE_PICTURE = 1004;//se usa para permisos de escritura externa y gps
     String imagePath;
+    double latitude;
+    double longitude;
     ImageView viewPicture;
+    ImageButton btnPhoto;
     Bitmap imgBitmap;
     LocationListener locationListener;
     LocationManager locationManager;
@@ -55,16 +59,10 @@ public class PictureActivity extends Activity {
 
         setContentView(R.layout.activity_picture);
 
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        Log.i(TAG, "OnResume");
-
+        btnPhoto = findViewById(R.id.btnNewPhoto);
         viewPicture = findViewById(R.id.picture);
+
         //tomara un foto, le pondra gps y la guardara en el almacenamiento
-        ImageButton btnPhoto = findViewById(R.id.btnNewPhoto);
         btnPhoto.setOnClickListener(view -> {
 
             int permision = checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION);
@@ -74,14 +72,13 @@ public class PictureActivity extends Activity {
                             new String[] {Manifest.permission.ACCESS_FINE_LOCATION,
                                     Manifest.permission.ACCESS_COARSE_LOCATION,
                                     Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                                    Manifest.permission.CAMERA},
+                            },
                             REQUEST_CODE_TAKE_PICTURE );
                 } else {
                     requestPermissions(
                             new String[] {
                                     Manifest.permission.ACCESS_FINE_LOCATION,
                                     Manifest.permission.ACCESS_COARSE_LOCATION,
-                                    Manifest.permission.CAMERA
                             },
                             REQUEST_CODE_TAKE_PICTURE );
                 }
@@ -89,12 +86,18 @@ public class PictureActivity extends Activity {
             }
 
             takePicture();
-            beginRequestLocation();
         });
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.i(TAG, "OnResume");
+
+    }
+
     @SuppressLint("MissingPermission")
-    private void beginRequestLocation () {
+    private void getLocation () {
         locationListener = new MyLocationListener ();
         locationManager = (LocationManager) getSystemService (LOCATION_SERVICE);
         locationManager.requestLocationUpdates (LocationManager.GPS_PROVIDER,
@@ -107,106 +110,90 @@ public class PictureActivity extends Activity {
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
         if (intent.resolveActivity(getPackageManager()) != null) {
-            /** CON FILE PROVIDER*/
-//            File imagen = null;
-//            try {
-//                imagen = creaImagen();
-//            }catch (IOException e){
-//                Log.e("ERROR: ", e.toString());
-//            }
-//            if (imagen != null){
-//                Uri fotoUri = FileProvider.getUriForFile(this, "com.jpdevelopers.myapp", imagen);
-//                intent.putExtra(MediaStore.EXTRA_OUTPUT, fotoUri);
-//                startActivityForResult(intent, REQUEST_CODE_TAKE_PICTURE);
-//            }
-
-            /**CON MEDIASTORE*/
+            getLocation();
             startActivityForResult(intent, REQUEST_CODE_TAKE_PICTURE);
-            //para guardar la imagen
-            OutputStream fos = null;
-            File imagen = null;
-            String nombre;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q){
-                ContentResolver resolver = getContentResolver();
-                ContentValues values = new ContentValues();
+        }
+    }
 
-                nombre = "IMG_"+System.currentTimeMillis();
-                values.put(MediaStore.Images.Media.DISPLAY_NAME, nombre);
-                values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
-                values.put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/MyApp");
-                values.put(MediaStore.Images.Media.IS_PENDING, 1);
+    private void savePicture() {
+        OutputStream fos = null;
+        File imagen = null;
+        String nombre;
+        ContentResolver resolver = getContentResolver();
+        ContentValues values = new ContentValues();
 
-                Uri collection = MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY);
-                Uri fotoUri = resolver.insert(collection, values);
+        nombre = "IMG_"+System.currentTimeMillis()+".jpg";
+        values.put(MediaStore.Images.Media.DISPLAY_NAME, nombre);
+        values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
+        values.put(MediaStore.Images.Media.LATITUDE, latitude);
+        values.put(MediaStore.Images.Media.LONGITUDE, longitude);
 
-                try {
-                    fos = resolver.openOutputStream(fotoUri);
-                }catch (FileNotFoundException e){
-                    e.printStackTrace();
-                }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q){
+            values.put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/MyApp");
+            values.put(MediaStore.Images.Media.IS_PENDING, true);
+        }else {
+            imagePath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).toString();
+            String fullPath = String.format("%s/%s", imagePath, nombre);
+            values.put(MediaStore.Images.ImageColumns.DATA, fullPath);
 
-                values.clear();
-                values.put(MediaStore.Images.Media.IS_PENDING, 0);
-                resolver.update(fotoUri, values, null, null);
-            }else {
-                imagePath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).toString();
-                nombre = "IMG_"+System.currentTimeMillis()+".jpg";
-                imagen = new File(imagePath, nombre);
-                try {
-                    fos = new FileOutputStream(imagen);
-                }catch (FileNotFoundException e){
-                    e.printStackTrace();
-                }
-            }
+            /*imagen = new File(imagePath, nombre);
+            try {
+                fos = new FileOutputStream(imagen);
+            }catch (FileNotFoundException e){
+                e.printStackTrace();
+            }*/
 
+        }
+
+        Uri collection = MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY);
+        Uri fotoUri = resolver.insert(collection, values);
+
+        try {
+            fos = resolver.openOutputStream(fotoUri);
+        }catch (FileNotFoundException e){
+            e.printStackTrace();
+        }
+
+        try {
             boolean guardado = imgBitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
             if (guardado)
                 Toast.makeText(this, "Imagen guardada en la galeria!", Toast.LENGTH_LONG).show();
             else
                 Toast.makeText(this, "La imagen no se pudo guardar :(", Toast.LENGTH_LONG).show();
-
-            if (fos != null){
-                try {
-                    fos.flush();
-                    fos.close();
-                }catch (IOException e){
-                    e.printStackTrace();
-                }
-            }
-
-            if (imagen != null)//API < 29
-                MediaScannerConnection.scanFile(this, new String[]{imagen.toString()}, null, null);
-
+        }catch (NullPointerException e){
+            e.printStackTrace();
         }
-    }
 
-    private File creaImagen() throws IOException {
-        String imgTime = new SimpleDateFormat("yyyyMMdd_HH-mm-ss", Locale.getDefault()).format(new Date());
-        String nombre = "IMG_TEST_"+imgTime;
+        if (fos != null){
+            try {
+                fos.flush();
+                fos.close();
+            }catch (IOException e){
+                e.printStackTrace();
+            }
+        }
 
-        //ContentValues values = new ContentValues();
-        //values.put(MediaStore.Images.ImageColumns.DISPLAY_NAME, nombre);
-        //values.put(MediaStore.Images.ImageColumns.LATITUDE, locationListener.onLocationChanged());
-        //values.put(MediaStore.Images.ImageColumns.LONGITUDE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q){
+            values.clear();
+            values.put(MediaStore.Images.Media.IS_PENDING, false);
+            resolver.update(fotoUri, values, null, null);
+        }
 
-        File path = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-        File temp = File.createTempFile(nombre, ".jpg", path);
-        imagePath = temp.getAbsolutePath();
+        if (imagen != null)//API < 29
+            MediaScannerConnection.scanFile(this, new String[]{imagen.toString()}, null, null);
 
-        return temp;
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_CODE_TAKE_PICTURE && requestCode == RESULT_OK){
+        if (requestCode == REQUEST_CODE_TAKE_PICTURE && resultCode == RESULT_OK){
             if (data != null){
                 imgBitmap = (Bitmap) data.getExtras().get("data");
                 viewPicture.setImageBitmap(imgBitmap);
+
+                savePicture();
             }
-            //imgBitmap = BitmapFactory.decodeFile(imagePath);
-            //viewPicture.setImageBitmap(imgBitmap);
-            //viewPicture.setImageURI(Uri.parse(imagePath));
         }
 
     }
@@ -217,6 +204,7 @@ public class PictureActivity extends Activity {
 
         if (grantResults.length > 0 && requestCode == REQUEST_CODE_TAKE_PICTURE){
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                getLocation();
                 takePicture();
             }else {
                 Toast.makeText(this, "No se puede capturar la imagen debido a falta de permisos", Toast.LENGTH_LONG).show();
@@ -228,6 +216,12 @@ public class PictureActivity extends Activity {
     protected void onPause() {
         super.onPause();
         Log.i(TAG, "OnPause");
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.i(TAG, "OnStop");
 
         locationManager.removeUpdates (locationListener);
     }
@@ -236,9 +230,11 @@ public class PictureActivity extends Activity {
 
         @Override
         public void onLocationChanged(@NonNull Location location) {
-            Toast.makeText (getBaseContext (),
-                    "LocatinChanged: Lat " + location.getLatitude() + " Log: " + location.getLongitude (),
-                    Toast.LENGTH_LONG).show ();
+            latitude = location.getLatitude();
+            longitude = location.getLongitude();
+//            Toast.makeText (getBaseContext (),
+//                    "LocatinChanged: Lat " + latitude + " Log: " + longitude,
+//                    Toast.LENGTH_LONG).show ();
 
             Geocoder geocoder = new Geocoder (getBaseContext(), Locale.getDefault ());
             List<Address> addresses;
